@@ -1,59 +1,58 @@
-import 'dart:convert';
-
-import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
-
+import 'api.dart';
 import 'models/beers.dart';
 import 'models/brewers.dart';
 import 'models/styles.dart';
 
 class Repository {
-  static const String _baseUrl = "https://borefts-staging.firebaseio.com/";
-  static Set<Beer> _starredBeers = Set();
+  Api _api;
+  Set<int> _starredBeers = Set();
 
-  static Future<List<Style>> styles() async {
-    Response response = await http.get(_baseUrl + "styles/2019.json");
-    return Styles.fromJson(json.decode(response.body)).styles;
+  Repository(this._api);
+
+  Future<List<Style>> styles() async {
+    return _api.styles().then((list) {
+      list.sort((s1, s2) => s1.name.compareTo(s2.name));
+      return list;
+    });
   }
 
-  static Future<List<Brewer>> brewers() async {
-    Response response = await http.get(_baseUrl + "brewers/2019.json");
-    return Brewers.fromJson(json.decode(response.body)).brewers;
+  Future<List<Brewer>> brewers() async {
+    return _api.brewers().then((list) {
+      list.sort((b1, b2) => b1.sortName.compareTo(b2.sortName));
+      return list;
+    });
   }
 
-  static Future<List<Beer>> _rawBeers() async {
-    Response response = await http.get(_baseUrl + "beers/2019.json");
-    return Beers.fromJson(json.decode(response.body)).beers;
-  }
-
-  static Future<List<Beer>> beers() async {
-    List<Style> rawStyles = await styles();
-    List<Brewer> rawBrewers = await brewers();
-    List<Beer> rawBeers = await _rawBeers();
-    rawBeers.forEach((beer) => beer.brewer =
-        rawBrewers.firstWhere((brewer) => brewer.id == beer.brewerId));
-    rawBeers.forEach((beer) =>
-        beer.style = rawStyles.firstWhere((style) => style.id == beer.styleId));
-    rawBeers.forEach((beer) => beer.isStarred = _starredBeers.contains(beer));
-    return rawBeers;
-  }
-
-  static Future<List<Beer>> brewerBeers(Brewer brewer) async {
-    List<Style> rawStyles = await styles();
-    List<Beer> rawBeers = await _rawBeers();
+  Future<List<Beer>> brewerBeers(Brewer brewer) async {
+    List<Style> rawStyles = await _api.styles();
+    List<Beer> rawBeers = await _api.rawBeers();
     rawBeers.retainWhere((beer) => beer.brewerId == brewer.id);
     rawBeers.forEach((beer) => beer.brewer = brewer);
     rawBeers.forEach((beer) =>
-        beer.style = rawStyles.firstWhere((style) => style.id == beer.styleId));
-    rawBeers.forEach((beer) => beer.isStarred = _starredBeers.contains(beer));
+    beer.style = rawStyles.firstWhere((style) => style.id == beer.styleId));
+    rawBeers.forEach((beer) =>
+    beer.isStarred = _starredBeers.contains(beer.id));
     return rawBeers;
   }
 
-  static void starBeer(Beer beer, bool starred) {
+  Future<List<Beer>> styleBeers(Style style) async {
+    List<Brewer> rawBrewers = await _api.brewers();
+    List<Beer> rawBeers = await _api.rawBeers();
+    rawBeers.retainWhere((beer) => beer.styleId == style.id);
+    rawBeers.forEach((beer) => beer.style = style);
+    rawBeers.forEach((beer) =>
+    beer.brewer =
+        rawBrewers.firstWhere((brewer) => brewer.id == beer.brewerId));
+    rawBeers.forEach((beer) =>
+    beer.isStarred = _starredBeers.contains(beer.id));
+    return rawBeers;
+  }
+
+  void starBeer(Beer beer, bool starred) {
     if (starred) {
-      _starredBeers.add(beer);
+      _starredBeers.add(beer.id);
     } else {
-      _starredBeers.remove(beer);
+      _starredBeers.remove(beer.id);
     }
   }
 }

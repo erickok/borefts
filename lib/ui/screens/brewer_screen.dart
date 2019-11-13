@@ -1,99 +1,78 @@
 import 'package:borefts2020/data/models/beers.dart';
-import 'package:borefts2020/data/models/brewers.dart';
-import 'package:borefts2020/data/repository.dart';
+import 'package:borefts2020/ui/components/link_text.dart';
 import 'package:borefts2020/ui/identity/color.dart';
 import 'package:borefts2020/ui/identity/theme.dart';
+import 'package:borefts2020/ui/screens/brewer_bloc.dart';
+import 'package:borefts2020/ui/screens/events.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BrewerScreen extends StatefulWidget {
-  final Brewer brewer;
-
-  BrewerScreen(this.brewer);
-
-  @override
-  State<StatefulWidget> createState() => BrewerScreenState(brewer);
-}
-
-class BrewerScreenState extends State<BrewerScreen> {
-  final Brewer brewer;
-  Future<List<Beer>> _beers;
-
-  BrewerScreenState(this.brewer);
-
-  @override
-  void initState() {
-    super.initState();
-    _beers = Repository.brewerBeers(brewer);
-  }
-
-  void _starBeer(Beer beer) {
-    setState(() {
-      Repository.starBeer(beer, beer.isStarred);
-    });
-  }
+class BrewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder:
-            (BuildContext buildContext, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              pinned: true,
-              title: Text(
-                brewer.name,
-                style: headerTextStyle(),
-              ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Text(brewer.city + ", " + brewer.country),
-                    InkWell(
-                      child: Text(
-                        brewer.website,
-                        style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: redDark),
-                      ),
-                      onTap: () {
-                        launch(brewer.website);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ];
-        },
-        body: FutureBuilder<List<Beer>>(
-          future: _beers,
-          builder: (context, beersOpt) {
-            if (beersOpt.hasData) {
-              return ListView.builder(
-                  itemCount: beersOpt.data.length,
-                  itemBuilder: (BuildContext context, int i) {
-                    return _buildRow(beersOpt.data[i]);
-                  });
-            } else if (beersOpt.hasError) {
-              return Center(
-                child: Text("Error: " + beersOpt.error.toString()),
-              );
-            }
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-        ),
-      ),
+    return BlocBuilder<BrewerBloc, BrewerState>(
+      builder: (BuildContext context, BrewerState brewerBeers) {
+        return Scaffold(
+          body: _buildScreen(brewerBeers),
+        );
+      },
     );
   }
 
-  Widget _buildRow(Beer beer) {
+  Widget _buildScreen(BrewerState brewerBeers) {
+    if (brewerBeers is BrewerBeersError) {
+      return Center(
+        child: Text("Error: " + brewerBeers.error.toString()),
+      );
+    } else if (brewerBeers is BrewerBeersLoaded) {
+      return _buildList(brewerBeers);
+    } else {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+  }
+
+  Widget _buildList(BrewerBeersLoaded brewerBeers) {
+    return NestedScrollView(
+      headerSliverBuilder:
+          (BuildContext buildContext, bool innerBoxIsScrolled) {
+        return <Widget>[
+          SliverAppBar(
+            pinned: true,
+            title: Text(
+              brewerBeers.brewer.name,
+              style: headerTextStyle(),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+                color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                      children: [
+                        Text(brewerBeers.brewer.city + ", " +
+                            brewerBeers.brewer.country),
+                        LinkText(
+                            brewerBeers.brewer.website,
+                            brewerBeers.brewer.website),
+                      ]),
+                ))
+            ,
+          )
+        ];
+      },
+      body: ListView.builder(
+          itemCount: brewerBeers.beers.length,
+          itemBuilder: (BuildContext context, int i) {
+            return _buildRow(context, brewerBeers.beers[i]);
+          }),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, Beer beer) {
     return ListTile(
       title: Text(beer.name),
       trailing: Icon(
@@ -101,7 +80,8 @@ class BrewerScreenState extends State<BrewerScreen> {
         color: beer.isStarred ? redDark : null,
       ),
       onTap: () {
-        _starBeer(beer);
+        BlocProvider.of<BrewerBloc>(context).add(
+            BeerStarEvent(beer, !beer.isStarred));
       },
     );
   }

@@ -1,47 +1,45 @@
 import 'package:borefts2020/data/models/brewers.dart';
 import 'package:borefts2020/data/repository.dart';
+import 'package:borefts2020/ui/screens/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'brewer_bloc.dart';
 import 'brewer_screen.dart';
+import 'brewers_bloc.dart';
 
-class BrewersScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => BrewersScreenState();
-}
-
-class BrewersScreenState extends State<BrewersScreen> {
-  Future<List<Brewer>> _brewers;
-
-  @override
-  void initState() {
-    super.initState();
-    _brewers = Repository.brewers();
-  }
+class BrewersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Brewer>>(
-      future: _brewers,
-      builder: (context, brewers) {
-        if (brewers.hasData) {
-          return ListView.builder(
-              itemCount: brewers.data.length,
-              itemBuilder: (BuildContext context, int i) {
-                return _buildRow(brewers.data[i]);
-              });
-        } else if (brewers.hasError) {
-          return Center(
-            child: Text("Error: " + brewers.error.toString()),
-          );
-        }
-        return Center(
-          child: CircularProgressIndicator(),
+    return BlocBuilder<BrewersBloc, BrewersState>(
+      builder: (BuildContext context, BrewersState brewers) {
+        return Scaffold(
+          body: _buildScreen(brewers),
         );
       },
     );
   }
 
-  Widget _buildRow(Brewer brewer) {
+  Widget _buildScreen(BrewersState brewers) {
+    if (brewers is BrewersLoaded) {
+      return _buildList(brewers.brewers);
+    } else {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+  }
+
+  Widget _buildList(List<Brewer> brewers) {
+    return ListView.builder(
+        itemCount: brewers.length,
+              itemBuilder: (BuildContext context, int i) {
+                return _buildRow(context, brewers[i]);
+              });
+  }
+
+  Widget _buildRow(BuildContext context, Brewer brewer) {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.white,
@@ -54,10 +52,15 @@ class BrewersScreenState extends State<BrewersScreen> {
     );
   }
 
-  void _openBrewer(BuildContext context, Brewer brewer) {
-    Navigator.of(context)
+  void _openBrewer(BuildContext outerContext, Brewer brewer) {
+    Navigator.of(outerContext)
         .push(MaterialPageRoute(builder: (BuildContext context) {
-      return BrewerScreen(brewer);
+      return BlocProvider<BrewerBloc>(
+        builder: (_) =>
+        BrewerBloc(RepositoryProvider.of<Repository>(outerContext), brewer)
+          ..add(BeersLoadEvent()),
+        child: BrewerScreen(),
+      );
     }));
   }
 }

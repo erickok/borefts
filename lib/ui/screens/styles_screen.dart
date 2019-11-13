@@ -1,46 +1,45 @@
 import 'package:borefts2020/data/models/styles.dart';
 import 'package:borefts2020/data/repository.dart';
+import 'package:borefts2020/ui/screens/style_bloc.dart';
 import 'package:borefts2020/ui/screens/style_screen.dart';
+import 'package:borefts2020/ui/screens/styles_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class StylesScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => StylesScreenState();
-}
+import 'events.dart';
 
-class StylesScreenState extends State<StylesScreen> {
-  Future<List<Style>> _styles;
-
-  @override
-  void initState() {
-    super.initState();
-    _styles = Repository.styles();
-  }
+class StylesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Style>>(
-      future: _styles,
-      builder: (context, styles) {
-        if (styles.hasData) {
-          return ListView.builder(
-              itemCount: styles.data.length,
-              itemBuilder: (BuildContext context, int i) {
-                return _buildRow(styles.data[i]);
-              });
-        } else if (styles.hasError) {
-          return Center(
-            child: Text("Error: " + styles.error.toString()),
-          );
-        }
-        return Center(
-          child: CircularProgressIndicator(),
+    return BlocBuilder<StylesBloc, StylesState>(
+      builder: (BuildContext context, StylesState styles) {
+        return Scaffold(
+          body: _buildScreen(styles),
         );
       },
     );
   }
 
-  Widget _buildRow(Style style) {
+  Widget _buildScreen(StylesState styles) {
+    if (styles is StylesLoaded) {
+      return _buildList(styles.styles);
+    } else {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+  }
+
+  Widget _buildList(List<Style> styles) {
+    return ListView.builder(
+        itemCount: styles.length,
+        itemBuilder: (BuildContext context, int i) {
+          return _buildRow(context, styles[i]);
+        });
+  }
+
+  Widget _buildRow(BuildContext context, Style style) {
     return ListTile(
       // TODO leading: , // square with color?
       title: Text(style.name),
@@ -50,10 +49,16 @@ class StylesScreenState extends State<StylesScreen> {
     );
   }
 
-  void _openBrewer(BuildContext context, Style style) {
-    Navigator.of(context)
+  void _openBrewer(BuildContext outerContext, Style brewer) {
+    Navigator.of(outerContext)
         .push(MaterialPageRoute(builder: (BuildContext context) {
-      return StyleScreen(style);
+      return BlocProvider<StyleBloc>(
+        builder: (_) =>
+        StyleBloc(RepositoryProvider.of<Repository>(outerContext), brewer)
+          ..add(BeersLoadEvent()),
+        child: StyleScreen(),
+      );
     }));
   }
+
 }
