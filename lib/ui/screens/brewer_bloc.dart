@@ -46,7 +46,7 @@ class BrewerBloc extends Bloc<BeersScreenEvent, BrewerState> {
         }
         yield BrewerBeersLoaded(_brewer, loadedState.beers);
         // Persist star status
-        _repository.starBeer(event.beer, event.starred);
+        await _repository.starBeer(event.beer, event.starred);
       }
     }
   }

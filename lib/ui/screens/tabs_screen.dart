@@ -2,6 +2,8 @@ import 'package:borefts2020/data/repository.dart';
 import 'package:borefts2020/ui/identity/color.dart';
 import 'package:borefts2020/ui/screens/brewers_bloc.dart';
 import 'package:borefts2020/ui/screens/events.dart';
+import 'package:borefts2020/ui/screens/starred_bloc.dart';
+import 'package:borefts2020/ui/screens/starred_screen.dart';
 import 'package:borefts2020/ui/screens/styles_bloc.dart';
 import 'package:borefts2020/ui/screens/styles_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ class TabsScreenState extends State<TabsScreen> {
     Center(child: Text("INFO")),
     BrewersScreen(),
     StylesScreen(),
-    Center(child: Text("FAVS"))
+    StarredScreen()
   ];
 
   void _selectTab(int selected) {
@@ -42,6 +44,11 @@ class TabsScreenState extends State<TabsScreen> {
           builder: (_) =>
           StylesBloc(RepositoryProvider.of<Repository>(context))
             ..add(LoadEvent()),
+        ),
+        BlocProvider<StarredBloc>(
+          builder: (_) =>
+          StarredBloc(RepositoryProvider.of<Repository>(context))
+            ..add(BeersLoadEvent()),
         ),
       ],
       child: Scaffold(

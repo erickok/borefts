@@ -44,17 +44,17 @@ class StylesScreen extends StatelessWidget {
       // TODO leading: , // square with color?
       title: Text(style.name),
       onTap: () {
-        _openBrewer(context, style);
+        _openStyle(context, style);
       },
     );
   }
 
-  void _openBrewer(BuildContext outerContext, Style brewer) {
+  void _openStyle(BuildContext outerContext, Style style) {
     Navigator.of(outerContext)
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return BlocProvider<StyleBloc>(
         builder: (_) =>
-        StyleBloc(RepositoryProvider.of<Repository>(outerContext), brewer)
+        StyleBloc(RepositoryProvider.of<Repository>(outerContext), style)
           ..add(BeersLoadEvent()),
         child: StyleScreen(),
       );

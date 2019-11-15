@@ -47,7 +47,7 @@ class StyleBloc extends Bloc<BeersScreenEvent, StyleState> {
         }
         yield StyleBeersLoaded(_style, loadedState.beers);
         // Persist star status
-        _repository.starBeer(event.beer, event.starred);
+        await _repository.starBeer(event.beer, event.starred);
       }
     }
   }

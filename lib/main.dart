@@ -1,4 +1,5 @@
 import 'package:borefts2020/data/repository.dart';
+import 'package:borefts2020/data/starred.dart';
 import 'package:borefts2020/ui/identity/color.dart';
 import 'package:borefts2020/ui/identity/theme.dart';
 import 'package:borefts2020/ui/screens/tabs_screen.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       home: MultiRepositoryProvider(
         providers: [
           RepositoryProvider<Repository>(
-            builder: (_) => Repository(Api()),
+            builder: (_) => Repository(Api(), Starred()),
           )
         ],
         child: TabsScreen(),

@@ -1,5 +1,6 @@
 import 'package:borefts2020/data/models/beers.dart';
-import 'package:borefts2020/ui/identity/color.dart';
+import 'package:borefts2020/ui/components/navigation.dart';
+import 'package:borefts2020/ui/components/row_beer.dart';
 import 'package:borefts2020/ui/identity/theme.dart';
 import 'package:borefts2020/ui/screens/style_bloc.dart';
 import 'package:flutter/material.dart';
@@ -69,22 +70,12 @@ class StyleScreen extends StatelessWidget {
       body: ListView.builder(
           itemCount: styleBeers.beers.length,
           itemBuilder: (BuildContext context, int i) {
-            return _buildRow(context, styleBeers.beers[i]);
+            final Beer beer = styleBeers.beers[i];
+            return BeerRow(beer, () => openBeer(context, beer), () {
+              BlocProvider.of<StyleBloc>(context).add(
+                  BeerStarEvent(beer, !beer.isStarred));
+            });
           }),
-    );
-  }
-
-  Widget _buildRow(BuildContext context, Beer beer) {
-    return ListTile(
-      title: Text(beer.name),
-      trailing: Icon(
-        beer.isStarred ? Icons.star : Icons.star_border,
-        color: beer.isStarred ? redDark : null,
-      ),
-      onTap: () {
-        BlocProvider.of<StyleBloc>(context).add(
-            BeerStarEvent(beer, !beer.isStarred));
-      },
     );
   }
 }

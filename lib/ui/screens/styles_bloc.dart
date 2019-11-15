@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:borefts2020/data/models/brewers.dart';
 import 'package:borefts2020/data/models/styles.dart';
 import 'package:borefts2020/data/repository.dart';
 
