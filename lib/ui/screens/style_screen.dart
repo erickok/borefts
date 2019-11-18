@@ -1,3 +1,4 @@
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/beers.dart';
 import 'package:borefts2020/ui/components/navigation.dart';
 import 'package:borefts2020/ui/components/row_beer.dart';
@@ -5,8 +6,6 @@ import 'package:borefts2020/ui/identity/theme.dart';
 import 'package:borefts2020/ui/screens/style_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'events.dart';
 
 class StyleScreen extends StatelessWidget {
 
@@ -73,7 +72,7 @@ class StyleScreen extends StatelessWidget {
             final Beer beer = styleBeers.beers[i];
             return BeerRow(beer, () => openBeer(context, beer), () {
               BlocProvider.of<StyleBloc>(context).add(
-                  BeerStarEvent(beer, !beer.isStarred));
+                  UpdateStarEvent(beer, !beer.isStarred));
             });
           }),
     );

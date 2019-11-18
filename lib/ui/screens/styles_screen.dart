@@ -1,12 +1,10 @@
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/styles.dart';
-import 'package:borefts2020/data/repository.dart';
 import 'package:borefts2020/ui/screens/style_bloc.dart';
 import 'package:borefts2020/ui/screens/style_screen.dart';
 import 'package:borefts2020/ui/screens/styles_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'events.dart';
 
 class StylesScreen extends StatelessWidget {
 
@@ -54,8 +52,7 @@ class StylesScreen extends StatelessWidget {
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return BlocProvider<StyleBloc>(
         builder: (_) =>
-        StyleBloc(RepositoryProvider.of<Repository>(outerContext), style)
-          ..add(BeersLoadEvent()),
+            StyleBloc(style, BlocProvider.of<DataBloc>(outerContext)),
         child: StyleScreen(),
       );
     }));

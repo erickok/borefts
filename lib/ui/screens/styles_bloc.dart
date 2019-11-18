@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/styles.dart';
-import 'package:borefts2020/data/repository.dart';
-
-import 'events.dart';
 
 abstract class StylesState {}
 
@@ -20,17 +18,24 @@ class StylesLoaded extends StylesState {
   StylesLoaded(this.styles);
 }
 
-class StylesBloc extends Bloc<DataScreenEvent, StylesState> {
-  final Repository _repository;
+class StylesBloc extends Bloc<DataRepoEvent, StylesState> {
+  final DataBloc _dataBloc;
 
-  StylesBloc(this._repository);
+  StylesBloc(this._dataBloc) {
+    _dataBloc.listen((data) {
+      if (data is DataLoaded) {
+        add(DataUpdatedEvent(data));
+      }
+    });
+  }
 
   @override
   StylesState get initialState => StylesLoading();
 
   @override
-  Stream<StylesState> mapEventToState(DataScreenEvent event) async* {
-    List<Style> styles = await _repository.styles();
-    yield StylesLoaded(styles);
+  Stream<StylesState> mapEventToState(DataRepoEvent event) async* {
+    if (event is DataUpdatedEvent) {
+      yield StylesLoaded(event.dataLoaded.styles);
+    }
   }
 }

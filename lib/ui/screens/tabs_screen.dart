@@ -1,7 +1,6 @@
-import 'package:borefts2020/data/repository.dart';
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/ui/identity/color.dart';
 import 'package:borefts2020/ui/screens/brewers_bloc.dart';
-import 'package:borefts2020/ui/screens/events.dart';
 import 'package:borefts2020/ui/screens/starred_bloc.dart';
 import 'package:borefts2020/ui/screens/starred_screen.dart';
 import 'package:borefts2020/ui/screens/styles_bloc.dart';
@@ -37,18 +36,15 @@ class TabsScreenState extends State<TabsScreen> {
       providers: [
         BlocProvider<BrewersBloc>(
           builder: (_) =>
-          BrewersBloc(RepositoryProvider.of<Repository>(context))
-            ..add(LoadEvent()),
+              BrewersBloc(BlocProvider.of<DataBloc>(context)),
         ),
         BlocProvider<StylesBloc>(
           builder: (_) =>
-          StylesBloc(RepositoryProvider.of<Repository>(context))
-            ..add(LoadEvent()),
+              StylesBloc(BlocProvider.of<DataBloc>(context)),
         ),
         BlocProvider<StarredBloc>(
           builder: (_) =>
-          StarredBloc(RepositoryProvider.of<Repository>(context))
-            ..add(BeersLoadEvent()),
+              StarredBloc(BlocProvider.of<DataBloc>(context)),
         ),
       ],
       child: Scaffold(

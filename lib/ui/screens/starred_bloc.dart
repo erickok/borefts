@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/beers.dart';
-import 'package:borefts2020/data/repository.dart';
-
-import 'events.dart';
 
 abstract class StarredState {}
 
@@ -20,31 +18,38 @@ class StarredLoaded extends StarredState {
   StarredLoaded(this.beers);
 }
 
-class StarredBloc extends Bloc<BeersScreenEvent, StarredState> {
-  final Repository _repository;
+class StarredBloc extends Bloc<DataRepoEvent, StarredState> {
+  final DataBloc _dataBloc;
 
-  StarredBloc(this._repository);
+  StarredBloc(this._dataBloc) {
+    _dataBloc.listen((data) {
+      if (data is DataLoaded) {
+        add(DataUpdatedEvent(data));
+      }
+    });
+  }
 
   @override
   StarredState get initialState => StarredLoading();
 
   @override
-  Stream<StarredState> mapEventToState(BeersScreenEvent event) async* {
-    if (event is BeersLoadEvent) {
-      List<Beer> beers = await _repository.starredBeers();
-      yield StarredLoaded(beers);
-    } else if (event is BeerStarEvent) {
+  Stream<StarredState> mapEventToState( event) async* {
+    if (event is DataUpdatedEvent) {
+      List<Beer> starredBeers = event.dataLoaded.beers.where((b) =>
+      b.isStarred).toList(growable: false);
+      yield StarredLoaded(starredBeers);
+    } else if (event is UpdateStarEvent) {
       if (state is StarredLoaded) {
-        final loadedState = state as StarredLoaded;
-        // Update and yield local list
-        for (final Beer beer in loadedState.beers) {
-          if (beer == event.beer) {
-            beer.isStarred = event.starred;
-          }
-        }
-        yield StarredLoaded(loadedState.beers);
+//        final loadedState = state as StarredLoaded;
+//        // Update and yield local list
+//        for (final Beer beer in loadedState.beers) {
+//          if (beer == event.beer) {
+//            beer.isStarred = event.starred;
+//          }
+//        }
+//        yield StarredLoaded(loadedState.beers);
         // Persist star status
-        await _repository.starBeer(event.beer, event.starred);
+        _dataBloc.add(event);
       }
     }
   }

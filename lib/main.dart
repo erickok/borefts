@@ -1,5 +1,6 @@
-import 'package:borefts2020/data/repository.dart';
-import 'package:borefts2020/data/starred.dart';
+import 'package:borefts2020/data/beers_repository.dart';
+import 'package:borefts2020/data/data_bloc.dart';
+import 'package:borefts2020/data/star_repository.dart';
 import 'package:borefts2020/ui/identity/color.dart';
 import 'package:borefts2020/ui/identity/theme.dart';
 import 'package:borefts2020/ui/screens/tabs_screen.dart';
@@ -17,13 +18,15 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: redVeryDark));
 
+    final StarRepository starRepository = StarRepository();
+    final BeersRepository beersRepository = BeersRepository(Api());
     return MaterialApp(
       title: 'Borefts 2020',
       theme: boreftsLightTheme(),
-      home: MultiRepositoryProvider(
+      home: MultiBlocProvider(
         providers: [
-          RepositoryProvider<Repository>(
-            builder: (_) => Repository(Api(), Starred()),
+          BlocProvider<DataBloc>(
+            builder: (_) => DataBloc(beersRepository, starRepository),
           )
         ],
         child: TabsScreen(),

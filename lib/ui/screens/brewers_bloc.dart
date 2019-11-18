@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/brewers.dart';
-import 'package:borefts2020/data/repository.dart';
-
-import 'events.dart';
 
 abstract class BrewersState {}
 
@@ -20,17 +18,24 @@ class BrewersLoaded extends BrewersState {
   BrewersLoaded(this.brewers);
 }
 
-class BrewersBloc extends Bloc<DataScreenEvent, BrewersState> {
-  final Repository _repository;
+class BrewersBloc extends Bloc<DataRepoEvent, BrewersState> {
+  final DataBloc _dataBloc;
 
-  BrewersBloc(this._repository);
+  BrewersBloc(this._dataBloc) {
+    _dataBloc.listen((data) {
+      if (data is DataLoaded) {
+        add(DataUpdatedEvent(data));
+      }
+    });
+  }
 
   @override
   BrewersState get initialState => BrewersLoading();
 
   @override
-  Stream<BrewersState> mapEventToState(DataScreenEvent event) async* {
-    List<Brewer> brewers = await _repository.brewers();
-    yield BrewersLoaded(brewers);
+  Stream<BrewersState> mapEventToState(DataRepoEvent event) async* {
+    if (event is DataUpdatedEvent) {
+      yield BrewersLoaded(event.dataLoaded.brewers);
+    }
   }
 }

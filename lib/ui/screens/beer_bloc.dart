@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/beers.dart';
-import 'package:borefts2020/data/repository.dart';
-import 'package:borefts2020/ui/screens/events.dart';
 
 class BeerLoadedState {
   final Beer beer;
@@ -9,23 +8,28 @@ class BeerLoadedState {
   BeerLoadedState(this.beer);
 }
 
-class BeerBloc extends Bloc<BeersScreenEvent, BeerLoadedState> {
-  final Repository _repository;
+class BeerBloc extends Bloc<DataRepoEvent, BeerLoadedState> {
   final Beer _beer;
+  final DataBloc _dataBloc;
 
-  BeerBloc(this._repository, this._beer);
+  BeerBloc(this._beer, this._dataBloc) {
+    _dataBloc.listen((data) {
+      if (data is DataLoaded) {
+        add(DataUpdatedEvent(data));
+      }
+    });
+  }
 
   @override
   BeerLoadedState get initialState => BeerLoadedState(_beer);
 
   @override
-  Stream<BeerLoadedState> mapEventToState(BeersScreenEvent event) async* {
-    if (event is BeerStarEvent) {
-      // Update and yield local list
-      state.beer.isStarred = event.starred;
-      yield BeerLoadedState(state.beer);
-      // Persist star status
-      await _repository.starBeer(event.beer, event.starred);
+  Stream<BeerLoadedState> mapEventToState(DataRepoEvent event) async* {
+    if (event is DataUpdatedEvent) {
+      yield BeerLoadedState(
+          event.dataLoaded.beers.firstWhere((b) => b.id == _beer.id));
+    } else if (event is UpdateStarEvent) {
+      _dataBloc.add(event);
     }
   }
 }

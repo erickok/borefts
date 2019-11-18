@@ -1,6 +1,5 @@
+import 'package:borefts2020/data/data_bloc.dart';
 import 'package:borefts2020/data/models/brewers.dart';
-import 'package:borefts2020/data/repository.dart';
-import 'package:borefts2020/ui/screens/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,9 +33,9 @@ class BrewersScreen extends StatelessWidget {
   Widget _buildList(List<Brewer> brewers) {
     return ListView.builder(
         itemCount: brewers.length,
-              itemBuilder: (BuildContext context, int i) {
-                return _buildRow(context, brewers[i]);
-              });
+        itemBuilder: (BuildContext context, int i) {
+          return _buildRow(context, brewers[i]);
+        });
   }
 
   Widget _buildRow(BuildContext context, Brewer brewer) {
@@ -57,8 +56,7 @@ class BrewersScreen extends StatelessWidget {
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return BlocProvider<BrewerBloc>(
         builder: (_) =>
-        BrewerBloc(RepositoryProvider.of<Repository>(outerContext), brewer)
-          ..add(BeersLoadEvent()),
+            BrewerBloc(brewer, BlocProvider.of<DataBloc>(outerContext)),
         child: BrewerScreen(),
       );
     }));
