@@ -47,12 +47,12 @@ class StylesScreen extends StatelessWidget {
     );
   }
 
-  void _openStyle(BuildContext outerContext, Style style) {
-    Navigator.of(outerContext)
+  void _openStyle(BuildContext context, Style style) {
+    Navigator.of(context)
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return BlocProvider<StyleBloc>(
         builder: (_) =>
-            StyleBloc(style, BlocProvider.of<DataBloc>(outerContext)),
+            StyleBloc(style, BlocProvider.of<DataBloc>(context)),
         child: StyleScreen(),
       );
     }));

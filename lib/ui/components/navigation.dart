@@ -6,12 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void openBeer(BuildContext outerContext, Beer beer) {
-  Navigator.of(outerContext)
+void openBeer(BuildContext context, Beer beer) {
+  Navigator.of(context)
       .push(MaterialPageRoute(builder: (BuildContext context) {
     return BlocProvider<BeerBloc>(
       builder: (_) =>
-          BeerBloc(beer, BlocProvider.of<DataBloc>(outerContext)),
+          BeerBloc(beer, BlocProvider.of<DataBloc>(context)),
       child: BeerScreen(),
     );
   }));

@@ -43,18 +43,6 @@ class StyleBloc extends Bloc<DataRepoEvent, StyleState> {
       yield StyleBeersLoaded(_style, beers);
     } else if (event is UpdateStarEvent) {
       _dataBloc.add(event);
-//      if (state is StyleBeersLoaded) {
-//        final loadedState = state as StyleBeersLoaded;
-//        // Update and yield local list
-//        for (final Beer beer in loadedState.beers) {
-//          if (beer == event.beer) {
-//            beer.isStarred = event.starred;
-//          }
-//        }
-//        yield StyleBeersLoaded(_style, loadedState.beers);
-//        // Persist star status
-//        await _repository.starBeer(event.beer, event.starred);
-//      }
     }
   }
 }

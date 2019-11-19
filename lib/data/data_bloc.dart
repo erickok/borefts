@@ -9,6 +9,12 @@ abstract class DataRepoEvent {}
 
 class LoadDataEvent extends DataRepoEvent {}
 
+class DataErrorEvent extends DataRepoEvent {
+  final String error;
+
+  DataErrorEvent(this.error);
+}
+
 class DataUpdatedEvent extends DataRepoEvent {
   final DataLoaded dataLoaded;
 
@@ -34,6 +40,12 @@ class DataLoaded extends DataState {
   DataLoaded(this.styles, this.brewers, this.beers);
 }
 
+class DataError extends DataState {
+  final String error;
+
+  DataError(this.error);
+}
+
 class DataBloc extends Bloc<DataRepoEvent, DataState> {
   final BeersRepository _beersRepository;
   final StarRepository _starRepository;
@@ -48,15 +60,20 @@ class DataBloc extends Bloc<DataRepoEvent, DataState> {
   @override
   Stream<DataState> mapEventToState(DataRepoEvent event) async* {
     if (event is LoadDataEvent) {
+//      await _starRepository.init();
       _beersRepository
           .beersStyleAndBrewers(_starRepository.stars())
-          .listen((d) => add(DataUpdatedEvent(d)));
+          .listen((d) => add(DataUpdatedEvent(d)),
+          onError: (e) => add(DataErrorEvent(e)));
     }
     if (event is DataUpdatedEvent) {
       yield event.dataLoaded;
     }
+    if (event is DataErrorEvent) {
+      yield DataError(event.error);
+    }
     if (event is UpdateStarEvent) {
-      await _starRepository.star(event.beer, event.starred);
+      _starRepository.star(event.beer, event.starred);
     }
   }
 }

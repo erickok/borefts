@@ -60,7 +60,7 @@ class BeersRepository {
   }
 
   Stream<DataLoaded> beersStyleAndBrewers(Stream<Set<int>> starred) {
-    return Observable.zip3(
+    return Observable.combineLatest3(
         styles().asStream(),
         brewers().asStream(),
         beersAndStars(starred),

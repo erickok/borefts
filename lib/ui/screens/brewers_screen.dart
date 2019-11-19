@@ -51,12 +51,12 @@ class BrewersScreen extends StatelessWidget {
     );
   }
 
-  void _openBrewer(BuildContext outerContext, Brewer brewer) {
-    Navigator.of(outerContext)
+  void _openBrewer(BuildContext context, Brewer brewer) {
+    Navigator.of(context)
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return BlocProvider<BrewerBloc>(
         builder: (_) =>
-            BrewerBloc(brewer, BlocProvider.of<DataBloc>(outerContext)),
+            BrewerBloc(brewer, BlocProvider.of<DataBloc>(context)),
         child: BrewerScreen(),
       );
     }));

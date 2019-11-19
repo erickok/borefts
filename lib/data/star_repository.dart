@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,18 +5,16 @@ import 'models/beers.dart';
 
 class StarRepository {
   final BehaviorSubject<Set<int>> _stars = BehaviorSubject();
-  Set<int> _lastStars;
 
   Stream<Set<int>> stars() {
-    final init = Observable.fromFuture(StarPersistence.persistedStars())
-        .doOnData((initial) => _lastStars = initial);
-    return Observable.concat([init, _stars]).doOnEach((s) {
-      log(s.toString());
+    return _stars.doOnListen(() async {
+      // Initially emit the stored stars
+      _stars.add(await StarPersistence.persistedStars());
     });
   }
 
-  Future<void> star(Beer beer, bool starred) async {
-    Set<int> newStars = Set.from(_lastStars);
+  void star(Beer beer, bool starred) async {
+    Set<int> newStars = Set.from(_stars.value);
     if (starred) {
       newStars.add(beer.id);
     } else {

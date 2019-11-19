@@ -42,17 +42,6 @@ class BrewerBloc extends Bloc<DataRepoEvent, BrewerState> {
       b.brewerId == _brewer.id).toList(growable: false);
       yield BrewerBeersLoaded(_brewer, beers);
     } else if (event is UpdateStarEvent) {
-//      if (state is BrewerBeersLoaded) {
-//        final loadedState = state as BrewerBeersLoaded;
-//        // Update and yield local list
-//        for (final Beer beer in loadedState.beers) {
-//          if (beer == event.beer) {
-//            beer.isStarred = event.starred;
-//          }
-//        }
-//        yield BrewerBeersLoaded(_brewer, loadedState.beers);
-//        // Persist star status
-//        await _repository.starBeer(event.beer, event.starred);
       _dataBloc.add(event);
 //      }
     }

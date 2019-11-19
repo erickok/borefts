@@ -20,16 +20,16 @@ class MyApp extends StatelessWidget {
 
     final StarRepository starRepository = StarRepository();
     final BeersRepository beersRepository = BeersRepository(Api());
-    return MaterialApp(
-      title: 'Borefts 2020',
-      theme: boreftsLightTheme(),
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider<DataBloc>(
-            builder: (_) => DataBloc(beersRepository, starRepository),
-          )
-        ],
-        child: TabsScreen(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DataBloc>(
+          builder: (_) => DataBloc(beersRepository, starRepository),
+        )
+      ],
+      child: MaterialApp(
+        title: 'Borefts 2020',
+        theme: boreftsLightTheme(),
+        home: TabsScreen(),
       ),
     );
   }
